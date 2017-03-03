@@ -14,7 +14,6 @@ typedef struct queue{
   int item;
 } Queue;
 
-static void copyToItem(Node *pn, Item *item);
 void initQueue(Queue *pq){
   pq -> front = pq -> back = NULL;
   pq -> item = 0;
@@ -75,23 +74,6 @@ bool pop(Queue *pq){
      pq -> back = NULL;
    }
    return true;
-}
-// bool pop(Queue *pq){
-//    Node * pointer;
-//    if(queueEmpty(pq)){
-//      return false;
-//    }
-//    pointer = pq -> front -> next;
-//    free(pointer);
-//    pq -> item--;
-//    if(pq -> item == 0){
-//      pq -> back = NULL;
-//    }
-//    return true;
-// }
-
-static void copyToItem(Node * pn, Item *pi){
-  *pi = pn -> item;
 }
 int main(){
   Queue kol;
