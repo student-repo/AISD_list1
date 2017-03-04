@@ -11,16 +11,72 @@ typedef struct Node{
 typedef struct list{
   Node *first;
   Node *last;
-  int item;
+  int size;
 } List;
+
+void initList(List *pq);
+
+bool listEmpty(const List * pq);
+
+Node* getFirst(const List *pq);
+
+Node* getLast(const List *pq);
+
+int listSize(const List *pq);
+
+bool append(Item item, List *pq);
+
+bool removeFirst(List *pq);
+
+bool removeByValue(Item item, List *l);
+
+Node* getNodeByIndex(int index, List *l);
+
+Node* getNodeByValue(Item item, List *l);
+
+void display(List *l);
+
+List* copyList(List *l);
+
+List* merge(List *l1, List *l2);
+
+int main(){
+  List l1;
+  initList(&l1);
+  int i;
+  srand(time(NULL));
+  for(i = 0; i < 1000; i++){
+    int r = rand() % 1000;
+    append(r, &l1);
+  }
+  int randValue = rand() % 1000;
+  int foo = getNodeByIndex(randValue, &l1) -> item;
+  getNodeByValue(foo, &l1);
+  // display(&l1);
+  clock_t start = clock();
+  getNodeByValue(foo, &l1);
+  clock_t end = clock();
+  double seconds = (double)(end - start) / CLOCKS_PER_SEC;
+  printf("%f\n",seconds );
+
+  randValue = rand() % 1000;
+  foo = getNodeByIndex(randValue, &l1) -> item;
+
+  start = clock();
+  getNodeByValue(foo, &l1);
+  end = clock();
+  seconds = (double)(end - start) / CLOCKS_PER_SEC;
+  printf("%f\n",seconds );
+
+}
 
 void initList(List *pq){
   pq -> first = pq -> last = NULL;
-  pq -> item = 0;
+  pq -> size = 0;
 }
 
 bool listEmpty(const List * pq){
-  return pq -> item == 0;
+  return pq -> size == 0;
 }
 
 Node* getFirst(const List *pq){
@@ -31,8 +87,8 @@ Node* getLast(const List *pq){
   return pq -> last;
 }
 
-int itemAmount(const List *pq){
-  return pq -> item;
+int listSize(const List *pq){
+  return pq -> size;
 }
 
 bool append(Item item, List *pq){
@@ -51,7 +107,7 @@ bool append(Item item, List *pq){
     pq -> last -> next = newNode;
   }
   pq -> last = newNode;
-  pq -> item++;
+  pq -> size++;
   return true;
 }
 
@@ -62,8 +118,8 @@ bool removeFirst(List *pq){
    Node * pointer = pq -> first;
    pq -> first = pq -> first -> next;
    free(pointer);
-   pq -> item--;
-   if(pq -> item == 0){
+   pq -> size--;
+   if(pq -> size == 0){
      pq -> last = NULL;
    }
    return true;
@@ -75,7 +131,7 @@ bool removeByValue(Item item, List *l){
   if(current -> item == item){
     removeFirst(l);
   }
-  int i, listLength = l -> item;
+  int i, listLength = l -> size;
   for(int i = 0; i < listLength; i++){
     if(item == current -> next -> item){
       if(i == listLength -2){
@@ -91,7 +147,7 @@ bool removeByValue(Item item, List *l){
   }
   current -> next = current -> next -> next;
   free(toRemove);
-  l -> item--;
+  l -> size--;
   return true;
 }
 
@@ -134,7 +190,7 @@ Node* getNodeByValue(Item item, List *l){
 void display(List *l){
   Node *node = l -> first;
   printf("[");
-  int i, listLength = itemAmount(l);
+  int i, listLength = listSize(l);
   for(i = 0; i < listLength; i++){
     printf("%d ,", node -> item);
     // printf("%p,",node );
@@ -146,12 +202,12 @@ void display(List *l){
 List* copyList(List *l){
   List *newList;
   newList = (List *) malloc(sizeof(List));
-  if(l -> item == 0){
+  if(l -> size == 0){
     initList(newList);
     return newList;
   }
-  newList -> item = l -> item;
-  int i, listLength = itemAmount(l);
+  newList -> size = l -> size;
+  int i, listLength = listSize(l);
   Node *current = l -> first;
   Node *previous = NULL;
   for(i = 0; i < listLength; i++){
@@ -175,53 +231,16 @@ List* copyList(List *l){
 }
 
 List* merge(List *l1, List *l2){
-  if(l1 -> item == 0){
+  if(l1 -> size == 0){
     return l2;
   }
-  else if(l2 -> item == 0){
+  else if(l2 -> size == 0){
     return l1;
   }
   List *ll1 = copyList(l1);
   List *ll2 = copyList(l2);
   ll1 -> last -> next = ll2 -> first;
-  ll1 -> item = ll1 -> item + ll2 -> item;
+  ll1 -> size = ll1 -> size + ll2 -> size;
   ll1 -> last = ll2 -> last;
   return ll1;
-}
-
-
-int main(){
-  List l1;
-  initList(&l1);
-  int i;
-  srand(time(NULL));
-  // clock_t start = clock();
-  for(i = 0; i < 1000; i++){
-    int r = rand() % 1000;
-    // printf("%d\n",r );
-    append(r, &l1);
-  }
-  // clock_t end = clock();
-  // double seconds = (double)(end - start) / CLOCKS_PER_SEC;
-  // display(&l1);
-  // printf("\n" );
-  // printf("%f\n", seconds);
-  int randValue = rand() % 1000;
-  int foo = getNodeByIndex(randValue, &l1) -> item;
-  // printf("%d\n",foo);
-  getNodeByValue(foo, &l1);
-  // display(&l1);
-  clock_t start = clock();
-  getNodeByValue(foo, &l1);
-  clock_t end = clock();
-  double seconds = (double)(end - start) / CLOCKS_PER_SEC;
-  printf("%f\n",seconds );
-
-  randValue = rand() % 1000;
-  start = clock();
-  getNodeByIndex(randValue, &l1);
-  end = clock();
-  seconds = (double)(end - start) / CLOCKS_PER_SEC;
-  printf("%f\n",seconds );
-
 }
