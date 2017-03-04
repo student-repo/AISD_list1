@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 
-typedef char Item;
+typedef int Item;
 typedef struct Node{
   Item item;
   struct Node *next;
@@ -22,12 +23,12 @@ bool listEmpty(const List * pq){
   return pq -> item == 0;
 }
 
-Item getFirst(const List *pq){
-  return pq -> first -> item;
+Node* getFirst(const List *pq){
+  return pq -> first;
 }
 
-Item getLast(const List *pq){
-  return pq -> last -> item;
+Node* getLast(const List *pq){
+  return pq -> last;
 }
 
 int itemAmount(const List *pq){
@@ -70,18 +71,22 @@ bool removeFirst(List *pq){
 
 bool removeByValue(Item item, List *l){
   Node *current = l -> first;
-  Node *toRemove;
+  Node *toRemove = NULL;
   if(current -> item == item){
     removeFirst(l);
   }
-  while(current -> next != NULL){
+  int i, listLength = l -> item;
+  for(int i = 0; i < listLength; i++){
     if(item == current -> next -> item){
+      if(i == listLength -2){
+        l -> last = current;
+      }
       toRemove = current -> next;
       break;
     }
     current = current -> next;
   }
-  if(current -> next == NULL){
+  if(toRemove == NULL){
     return false;
   }
   current -> next = current -> next -> next;
@@ -90,19 +95,38 @@ bool removeByValue(Item item, List *l){
   return true;
 }
 
+Node* getNodeByIndex(int index, List *l){
+  int i;
+  Node *n;
+  n = l -> first;
+  for(int i = 0; i < index; i++){
+      n = n -> next;
+  }
+  return n;
+}
+
 Node* getNodeByValue(Item item, List *l){
   Node *current = l -> first;
+  Node *previous = NULL;
   if(current -> item == item){
     return current;
   }
-  else if(l -> last -> item == item){
-    return l -> last;
-  }
   while(current -> next != NULL){
     if(item == current -> item){
+      previous -> next = current -> next;
+      current -> next = l -> first;
+      l -> first = current;
       return current;
     }
+    previous = current;
     current = current -> next;
+  }
+  if(current -> item == item){
+    previous -> next = current -> next;
+    current -> next = l -> first;
+    l -> first = current;
+    l -> last = previous;
+    return current;
   }
   return NULL;
 }
@@ -112,7 +136,7 @@ void display(List *l){
   printf("[");
   int i, listLength = itemAmount(l);
   for(i = 0; i < listLength; i++){
-    printf("%c ,", node -> item);
+    printf("%d ,", node -> item);
     // printf("%p,",node );
     node = node -> next;
   }
@@ -122,6 +146,10 @@ void display(List *l){
 List* copyList(List *l){
   List *newList;
   newList = (List *) malloc(sizeof(List));
+  if(l -> item == 0){
+    initList(newList);
+    return newList;
+  }
   newList -> item = l -> item;
   int i, listLength = itemAmount(l);
   Node *current = l -> first;
@@ -137,7 +165,7 @@ List* copyList(List *l){
     if(i == 0){
       newList -> first = b;
     }
-    else if(i == (listLength -1)){
+    if(i == (listLength -1)){
       newList -> last = b;
     }
     previous = b;
@@ -147,6 +175,12 @@ List* copyList(List *l){
 }
 
 List* merge(List *l1, List *l2){
+  if(l1 -> item == 0){
+    return l2;
+  }
+  else if(l2 -> item == 0){
+    return l1;
+  }
   List *ll1 = copyList(l1);
   List *ll2 = copyList(l2);
   ll1 -> last -> next = ll2 -> first;
@@ -158,56 +192,36 @@ List* merge(List *l1, List *l2){
 
 int main(){
   List l1;
-  Item tymcz;
   initList(&l1);
-  append('a', &l1);
-  append('b', &l1);
-  append('c', &l1);
-  append('d', &l1);
-  removeFirst(&l1);
-  append('f', &l1);
-  printf("%d\n",itemAmount(&l1) );
-  printf("%c\n",getFirst(&l1) );
-  printf("%c\n",getLast(&l1) );
-  removeByValue('b', &l1);
-  printf("%s\n","before removing" );
-  display(&l1);
-  Node *a = getNodeByValue('f', &l1);
-  printf("%c\n",a -> item );
-
-  List l2;
-  initList(&l2);
-  append('z', &l2);
-  append('x', &l2);
-  append('y', &l2);
-  append('w', &l2);
-  removeFirst(&l2);
-  display(&l2);
-
-  // List *l3 = copyList(&l1);
-  List *l3 = merge(&l1, &l2);
-  // printf("\n" );
-  // printf("\n" );
-  removeByValue('d', &l1);
-  removeByValue('f', &l1);
-  removeByValue('x', &l2);
-  removeByValue('w', &l2);
-  display(l3);
-  printf("%s\n","after remove" );
-  display(&l1);
-  display(&l2);
-
+  int i;
+  srand(time(NULL));
+  // clock_t start = clock();
+  for(i = 0; i < 1000; i++){
+    int r = rand() % 1000;
+    // printf("%d\n",r );
+    append(r, &l1);
+  }
+  // clock_t end = clock();
+  // double seconds = (double)(end - start) / CLOCKS_PER_SEC;
   // display(&l1);
-  // List *l3 = merge(&l1, &l2);
-  // display(l3);
-  //
-  //
-  // Node *b;
-  // b = (Node *) malloc(sizeof(Node));
-  // b = l3 -> first;
-  // while(b -> next != NULL){
-  //   printf("%c\n",b -> item );
-  //   b = b -> next;
-  // }
+  // printf("\n" );
+  // printf("%f\n", seconds);
+  int randValue = rand() % 1000;
+  int foo = getNodeByIndex(randValue, &l1) -> item;
+  // printf("%d\n",foo);
+  getNodeByValue(foo, &l1);
+  // display(&l1);
+  clock_t start = clock();
+  getNodeByValue(foo, &l1);
+  clock_t end = clock();
+  double seconds = (double)(end - start) / CLOCKS_PER_SEC;
+  printf("%f\n",seconds );
+
+  randValue = rand() % 1000;
+  start = clock();
+  getNodeByIndex(randValue, &l1);
+  end = clock();
+  seconds = (double)(end - start) / CLOCKS_PER_SEC;
+  printf("%f\n",seconds );
 
 }
