@@ -7,6 +7,7 @@ typedef int Item;
 typedef struct Node{
   Item item;
   struct Node *next;
+  struct Node *previous;
 } Node;
 typedef struct list{
   Node *first;
@@ -67,7 +68,6 @@ int main(){
   end = clock();
   seconds = (double)(end - start) / CLOCKS_PER_SEC;
   printf("random acces: %f s\n",seconds );
-
 }
 
 void initList(List *pq){
@@ -100,6 +100,7 @@ bool append(Item item, List *pq){
   }
   newNode -> item = item;
   newNode -> next = NULL;
+  newNode -> previous = pq -> last;
   if(listEmpty(pq)){
     pq -> first = newNode;
   }
@@ -117,6 +118,7 @@ bool removeFirst(List *pq){
   }
    Node * pointer = pq -> first;
    pq -> first = pq -> first -> next;
+   pq -> first -> previous = NULL;
    free(pointer);
    pq -> size--;
    if(pq -> size == 0){
@@ -131,22 +133,22 @@ bool removeByValue(Item item, List *l){
   if(current -> item == item){
     removeFirst(l);
   }
-  int i, listLength = l -> size;
-  for(int i = 0; i < listLength; i++){
-    if(item == current -> next -> item){
-      if(i == listLength -2){
-        l -> last = current;
-      }
-      toRemove = current -> next;
+  while(current -> next != NULL){
+    if(current -> item == item){
+      current -> previous -> next = current -> next;
+      current -> next -> previous = current -> previous;
       break;
     }
     current = current -> next;
   }
-  if(toRemove == NULL){
+  if((current -> item == item) && (current -> next == NULL)){
+    current -> previous -> next = NULL;
+    l -> last = current -> previous;
+  }
+  else if(current -> next == NULL){
     return false;
   }
-  current -> next = current -> next -> next;
-  free(toRemove);
+  free(current);
   l -> size--;
   return true;
 }
@@ -163,25 +165,27 @@ Node* getNodeByIndex(int index, List *l){
 
 Node* getNodeByValue(Item item, List *l){
   Node *current = l -> first;
-  Node *previous = NULL;
   if(current -> item == item){
     return current;
   }
   while(current -> next != NULL){
     if(item == current -> item){
-      previous -> next = current -> next;
+      current -> previous -> next = current -> next;
+      current -> next -> previous = current -> previous;
+      l -> first -> previous = current;
       current -> next = l -> first;
+      current -> previous = NULL;
       l -> first = current;
       return current;
     }
-    previous = current;
     current = current -> next;
   }
   if(current -> item == item){
-    previous -> next = current -> next;
+    current -> previous -> next = current -> next;
     current -> next = l -> first;
     l -> first = current;
-    l -> last = previous;
+    l -> last = current -> previous;
+
     return current;
   }
   return NULL;
@@ -215,6 +219,7 @@ List* copyList(List *l){
     b = (Node *) malloc(sizeof(Node));
     b -> item = current -> item;
     b -> next = NULL;
+    b -> previous = previous;
     if(previous != NULL){
       previous -> next = b;
     }
@@ -240,6 +245,7 @@ List* merge(List *l1, List *l2){
   List *ll1 = copyList(l1);
   List *ll2 = copyList(l2);
   ll1 -> last -> next = ll2 -> first;
+  ll1 -> last -> next -> previous = ll1 -> last;
   ll1 -> size = ll1 -> size + ll2 -> size;
   ll1 -> last = ll2 -> last;
   return ll1;
