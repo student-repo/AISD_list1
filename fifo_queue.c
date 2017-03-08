@@ -15,6 +15,45 @@ typedef struct Queue{
   int size;
 } Queue;
 
+void initQueue(Queue *q);
+
+Data getFirst(const Queue *q);
+
+Data getLast(const Queue *q);
+
+bool fullQueue(const Queue *q);
+
+bool emptyQueue(const Queue *q);
+
+int getSize(const Queue *q);
+
+bool push(Data data, Queue *q);
+
+bool pop(Queue *q);
+
+int main(){
+  Queue q;
+  initQueue(&q);
+  push(1, &q);
+  push(2, &q);
+  push(3, &q);
+  push(4, &q);
+  push(5, &q);
+  push(6, &q);
+  push(7, &q);
+  push(8, &q);
+  push(9, &q);
+  push(10, &q);
+  pop(&q);
+  pop(&q);
+  pop(&q);
+  pop(&q);
+  printf("%d\n",getSize(&q) );
+
+  printf("First = %d\n",getFirst(&q) );
+  printf("Last = %d\n", getLast(&q) );
+}
+
 void initQueue(Queue *q){
   q -> front = q -> back = NULL;
   q -> size = 0;
@@ -77,26 +116,4 @@ bool pop(Queue *q){
      q -> back = NULL;
    }
    return true;
-}
-int main(){
-  Queue q;
-  initQueue(&q);
-  push(1, &q);
-  push(2, &q);
-  push(3, &q);
-  push(4, &q);
-  push(5, &q);
-  push(6, &q);
-  push(7, &q);
-  push(8, &q);
-  push(9, &q);
-  push(10, &q);
-  pop(&q);
-  pop(&q);
-  pop(&q);
-  pop(&q);
-  printf("%d\n",getSize(&q) );
-
-  printf("First = %d\n",getFirst(&q) );
-  printf("Last = %d\n", getLast(&q) );
 }

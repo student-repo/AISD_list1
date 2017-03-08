@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <time.h>
 
-typedef int Item;
+typedef int Data;
 typedef struct Node{
-  Item item;
+  Data data;
   struct Node *next;
   struct Node *previous;
 } Node;
@@ -25,15 +25,15 @@ Node* getLast(const List *pq);
 
 int listSize(const List *pq);
 
-bool append(Item item, List *pq);
+bool append(Data data, List *pq);
 
 bool removeFirst(List *pq);
 
-bool removeByValue(Item item, List *l);
+bool removeByValue(Data data, List *l);
 
 Node* getNodeByIndex(int index, List *l);
 
-Node* getNodeByValue(Item item, List *l);
+Node* getNodeByValue(Data data, List *l);
 
 void display(List *l);
 
@@ -51,23 +51,91 @@ int main(){
     append(r, &l1);
   }
   int randValue = rand() % 1000;
-  int foo = getNodeByIndex(randValue, &l1) -> item;
+  int foo = getNodeByIndex(randValue, &l1) -> data;
   getNodeByValue(foo, &l1);
-  // display(&l1);
   clock_t start = clock();
   getNodeByValue(foo, &l1);
   clock_t end = clock();
   double seconds = (double)(end - start) / CLOCKS_PER_SEC;
-  printf("repeat acces: %f s\n",seconds );
+  printf("repeat acces: %.10e s\n",seconds );
 
   randValue = rand() % 1000;
-  foo = getNodeByIndex(randValue, &l1) -> item;
+  foo = getNodeByIndex(randValue, &l1) -> data;
 
   start = clock();
   getNodeByValue(foo, &l1);
   end = clock();
   seconds = (double)(end - start) / CLOCKS_PER_SEC;
-  printf("random acces: %f s\n",seconds );
+  printf("random acces: %.10e s\n",seconds );
+
+
+  randValue = rand() % 1000;
+  foo = getNodeByIndex(randValue, &l1) -> data;
+  getNodeByValue(foo, &l1);
+
+  start = clock();
+  for(i = 0; i < 1000; i++){
+    getNodeByValue(foo, &l1);
+  }
+  end = clock();
+
+  seconds = (double)(end - start) / CLOCKS_PER_SEC;
+  printf("repeat acces 1000 elements: %.10e s\n",seconds );
+
+  int valuesToCheck[1000];
+  for(i = 0; i < 1000; i++){
+    randValue = rand() % 1000;
+    valuesToCheck[i] = getNodeByIndex(randValue, &l1) -> data;
+  }
+  start = clock();
+  for(i = 0; i < 1000; i++){
+    getNodeByValue(valuesToCheck[i], &l1);
+  }
+  end = clock();
+  seconds = (double)(end - start) / CLOCKS_PER_SEC;
+  printf("random acces 1000 elements: %.10e s\n",seconds );
+
+  printf("\n");
+  printf("%s\n","***" );
+  printf("\n");
+  printf("%s\n","Testing" );
+  printf("\n");
+
+  List l3;
+  initList(&l3);
+  append(1, &l3);
+  append(2, &l3);
+  removeByValue(2, &l3);
+  append(3, &l3);
+  append(4, &l3);
+  printf("First list: ");
+  display(&l3);
+  printf("\n" );
+
+  List l4;
+  initList(&l4);
+  append(2, &l4);
+  append(5, &l4);
+  append(6, &l4);
+  removeByValue(5, &l4);
+  append(7, &l4);
+  append(8, &l4);
+  printf("Second list: ");
+  display(&l4);
+  printf("\n" );
+
+  printf("Merge first and second list: " );
+  display(merge(&l3, &l4));
+  printf("\n");
+
+  printf("First list: ");
+  display(&l3);
+  printf("\n" );
+
+  printf("Second list: ");
+  display(&l4);
+  printf("\n" );
+
 }
 
 void initList(List *pq){
@@ -91,14 +159,14 @@ int listSize(const List *pq){
   return pq -> size;
 }
 
-bool append(Item item, List *pq){
+bool append(Data data, List *pq){
   Node *newNode;
   newNode = (Node *) malloc(sizeof(Node));
   if(newNode == NULL){
     fprintf(stderr, "Memory allocation error!\n");
     exit(1);
   }
-  newNode -> item = item;
+  newNode -> data = data;
   newNode -> next = NULL;
   newNode -> previous = pq -> last;
   if(listEmpty(pq)){
@@ -127,21 +195,21 @@ bool removeFirst(List *pq){
    return true;
 }
 
-bool removeByValue(Item item, List *l){
+bool removeByValue(Data data, List *l){
   Node *current = l -> first;
   Node *toRemove = NULL;
-  if(current -> item == item){
+  if(current -> data == data){
     removeFirst(l);
   }
   while(current -> next != NULL){
-    if(current -> item == item){
+    if(current -> data == data){
       current -> previous -> next = current -> next;
       current -> next -> previous = current -> previous;
       break;
     }
     current = current -> next;
   }
-  if((current -> item == item) && (current -> next == NULL)){
+  if((current -> data == data) && (current -> next == NULL)){
     current -> previous -> next = NULL;
     l -> last = current -> previous;
   }
@@ -157,19 +225,19 @@ Node* getNodeByIndex(int index, List *l){
   int i;
   Node *n;
   n = l -> first;
-  for(int i = 0; i < index; i++){
+  for(i = 0; i < index; i++){
       n = n -> next;
   }
   return n;
 }
 
-Node* getNodeByValue(Item item, List *l){
+Node* getNodeByValue(Data data, List *l){
   Node *current = l -> first;
-  if(current -> item == item){
+  if(current -> data == data){
     return current;
   }
   while(current -> next != NULL){
-    if(item == current -> item){
+    if(data == current -> data){
       current -> previous -> next = current -> next;
       current -> next -> previous = current -> previous;
       l -> first -> previous = current;
@@ -180,7 +248,7 @@ Node* getNodeByValue(Item item, List *l){
     }
     current = current -> next;
   }
-  if(current -> item == item){
+  if(current -> data == data){
     current -> previous -> next = current -> next;
     current -> next = l -> first;
     l -> first = current;
@@ -196,7 +264,7 @@ void display(List *l){
   printf("[");
   int i, listLength = listSize(l);
   for(i = 0; i < listLength; i++){
-    printf("%d ,", node -> item);
+    printf("%d ,", node -> data);
     // printf("%p,",node );
     node = node -> next;
   }
@@ -217,7 +285,7 @@ List* copyList(List *l){
   for(i = 0; i < listLength; i++){
     Node *b;
     b = (Node *) malloc(sizeof(Node));
-    b -> item = current -> item;
+    b -> data = current -> data;
     b -> next = NULL;
     b -> previous = previous;
     if(previous != NULL){
