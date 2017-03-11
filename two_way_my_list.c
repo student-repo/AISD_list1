@@ -75,7 +75,8 @@ int main(){
 
   start = clock();
   for(i = 0; i < 1000; i++){
-    getNodeByValue(foo, &l1);
+    // getNodeByValue(foo, &l1);
+    getNodeByValue(randValue, &l1);
   }
   end = clock();
 
@@ -85,11 +86,13 @@ int main(){
   int valuesToCheck[1000];
   for(i = 0; i < 1000; i++){
     randValue = rand() % 1000;
-    valuesToCheck[i] = getNodeByIndex(randValue, &l1) -> data;
+    // valuesToCheck[i] = getNodeByIndex(randValue, &l1) -> data;
+    valuesToCheck[i] = randValue;
   }
   start = clock();
   for(i = 0; i < 1000; i++){
-    getNodeByValue(valuesToCheck[i], &l1);
+    // getNodeByValue(valuesToCheck[i], &l1);
+    getNodeByIndex(valuesToCheck[i], &l1);
   }
   end = clock();
   seconds = (double)(end - start) / CLOCKS_PER_SEC;
@@ -135,6 +138,11 @@ int main(){
   printf("Second list: ");
   display(&l4);
   printf("\n" );
+
+  // append(10, &l4);
+  display(&l4);
+  printf("\n");
+  printf("%d\n", getNodeByIndex(3, &l4) -> data  );
 
 }
 
@@ -224,10 +232,25 @@ bool removeByValue(Data data, List *l){
 Node* getNodeByIndex(int index, List *l){
   int i;
   Node *n;
-  n = l -> first;
-  for(i = 0; i < index; i++){
-      n = n -> next;
+  int k = listSize(l);
+  if(((int)(k / 2) >= index)){
+    n = l -> first;
+    for(i = 0; i < index; i++){
+        n = n -> next;
+    }
   }
+  else{
+    n = l -> last;
+    for(i = (k - index - 1); i > 0; i--){
+        n = n -> previous;
+    }
+  }
+
+  // n = l -> first;
+  // for(i = 0; i < index; i++){
+  //     n = n -> next;
+  // }
+
   return n;
 }
 

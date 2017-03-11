@@ -74,7 +74,8 @@ int main(){
 
   start = clock();
   for(i = 0; i < 1000; i++){
-    getNodeByValue(foo, &l1);
+    // getNodeByValue(foo, &l1);
+    getNodeByIndex(randValue, &l1);
   }
   end = clock();
 
@@ -84,11 +85,13 @@ int main(){
   int valuesToCheck[1000];
   for(i = 0; i < 1000; i++){
     randValue = rand() % 1000;
-    valuesToCheck[i] = getNodeByIndex(randValue, &l1) -> data;
+    // valuesToCheck[i] = getNodeByIndex(randValue, &l1) -> data;
+    valuesToCheck[i] = randValue;
   }
   start = clock();
   for(i = 0; i < 1000; i++){
-    getNodeByValue(valuesToCheck[i], &l1);
+    getNodeByIndex(valuesToCheck[i], &l1);
+    // getNodeByValue(valuesToCheck[i], &l1);
   }
   end = clock();
   seconds = (double)(end - start) / CLOCKS_PER_SEC;
